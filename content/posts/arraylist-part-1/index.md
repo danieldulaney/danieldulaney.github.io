@@ -39,7 +39,7 @@ Eventually, you pick up on what the compiler saying and structure your programs 
 
 # The `AppendList` interface
 
-We want a list list that lets you append a new item while you hold references to other items it contains. In addition to creating a new (empty) list, we'll want to do three main things:
+We want a list that lets you append a new item while you hold references to other items it contains. In addition to creating a new (empty) list, we'll want to do three main things:
 
 - Get an item by index anywhere in the list (we'll return an `Option` in case
   the index is out of bounds)
