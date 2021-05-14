@@ -1,6 +1,5 @@
 ---
 title: "Reversing the Hunter 99123 Fan Remote"
-date: 2021-05-13
 draft: true
 ---
 
