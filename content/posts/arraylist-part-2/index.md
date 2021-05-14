@@ -1,5 +1,5 @@
 ---
-title: "Interior Mutability in Rust using UnsafeCell (Part 2)"
+title: "ArrayList in Rust, part 2: Optimizing the layout"
 date: 2019-07-17
 tags:
     - rust

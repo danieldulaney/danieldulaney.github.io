@@ -1,5 +1,5 @@
 ---
-title: "Interior Mutability in Rust using UnsafeCell (Part 1)"
+title: "ArrayList in Rust, part 1: Sidestepping the borrow-checker"
 date: 2019-07-13
 tags:
     - rust
