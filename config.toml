@@ -1,0 +1,22 @@
+theme = "xmin"
+baseURL = "https://danieldulaney.com"
+languageCode = "en-us"
+title = "Daniel Dulaney"
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[[menu.main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[menu.main]]
+name = "About"
+url = "/about/"
+weight = 2
+
+[[menu.main]]
+name = "Tags"
+url = "/tags/"
+weight = 3
