@@ -16,4 +16,4 @@ Enter the fantastic [RTL-SDR](https://www.rtl-sdr.com/about-rtl-sdr/)! I got one
 
 If you've never tried one, I can highly recommend picking up an RTL-SDR radio. They're incredibly cheap ($28 from the [official store](https://www.rtl-sdr.com/product/rtl-sdr-blog-v3-r820t2-rtl2832u-1ppm-tcxo-sma-software-defined-radio-dongle-only/)) and work well enough for basic analysis.
 
-I started off using the 
+I started off following the [Quick-Start Guide](https://www.rtl-sdr.com/rtl-sdr-quick-start-guide/), which walks you through installing SDRSharp.
