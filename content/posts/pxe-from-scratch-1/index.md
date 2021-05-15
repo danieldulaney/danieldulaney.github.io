@@ -176,7 +176,7 @@ May 14 14:29:53 pxe-host dhcpd[1505]:
 May 14 14:29:53 pxe-host dhcpd[1505]: exiting.
 ```
 
-We can start configuring by editing `/etc/default/isc-dhcp-server`. Add the enp0s8 interface to the INTERFACESv4 line (configuring IPv6 DHCP is left as an exercise).
+We can start configuring by editing `/etc/default/isc-dhcp-server`. Add the enp0s8 interface to the INTERFACESv4 line.
 
 ```
 # pxe-host /etc/default/isc-dhcp-server
