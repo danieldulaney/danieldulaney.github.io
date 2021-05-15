@@ -1,0 +1,85 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>VM Setup and DHCP | Daniel Dulaney</title><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script></head><body><nav><ul class=menu><li><a href=/>Home</a></li><li><a href=/series>Series</a></li><li><a href=/tags/>Tags</a></li></ul><hr></nav><div class=article-meta><h1><span class=title>VM Setup and DHCP</span></h1><h2 class=date>15 May 2021</h2>Part 1 of a series on <a href=https://danieldulaney.com/series/pxe-from-scratch/>PXE from scratch</a></div><main><p>It can sometimes be useful to run a computer without any storage by booting from a network. This is the first part in a series on how to set up network, or PXE (pronounced &ldquo;pixie&rdquo;) booting.</p><p>Network booting has a bunch of advantages:</p><ul><li>Provisioning a new machine is instant.</li><li>Swapping failed hardware is trivial; just plug it in and reboot.</li><li>Every reboot is essentially a &ldquo;reimaging&rdquo;, so you can update software centrally and reboot to quickly roll it out.</li></ul><p>However, it also has a few disadvantages:</p><ul><li>Diskless servers can&rsquo;t store any data, so there needs to be some storage somewhere on the network for application state.</li><li>Network booting requires custom DHCP settings which need to be understood and maintained.</li><li>You have to build and store the boot files <em>somewhere</em>, which can become a single point of failure for booting the entire network.</li></ul><p>That said, once you have more than a handful of servers, network booting can make a lot of sense. Although there are some good tutorials out there, they tend to gloss over some of the details or use black-box solutions for some of the steps. This series will attempt to use as few complex tools as possible.</p><h1 id=overview>Overview</h1><p>The boot process will look something like this. Don&rsquo;t worry if the acronyms are unfamiliar, each one is explained.</p><ul><li>Native PXE</li><li>iPXE</li><li>Linux initramfs</li><li>Linux squashfs</li></ul><h1 id=install-virtualbox>Install VirtualBox</h1><p>These steps were tested with VirtualBox VMs, and the networking configuration will be specific to VirtualBox. That said, the concepts are transferrable to any hypervisor or to real hardware.</p><p>To follow along exactly, download VirtualBox from the <a href=https://www.virtualbox.org/wiki/Downloads>official site</a> or from your Linux distribution.</p><p>The final article in this series will look at moving the same techniques to hardware.</p><h1 id=networking-and-and-dhcp>Networking and and DHCP</h1><p>Network booting takes place in the <a href=https://en.wikipedia.org/wiki/Preboot_Execution_Environment>Preboot Execution Environment</a> (PXE), a mini OS-within-an-OS that most computers can be configured to start instead of booting from a disk.</p><p>The goal of any PXE is to fetch the next thing to boot and start it. The native PXE is provided by your hardware<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>, and might vary wildly in quality and features. In particular, it will probably only support downloading boot media over <a href=https://en.wikipedia.org/wiki/Trivial_File_Transfer_Protocol>TFTP</a>, the Trivial File Transfer Protocol.</p><p>In general, the native PXE will start by making a DHCP (<a href=https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol>Dynamic Host Configuration Protocol</a>) request. DHCP is used to provide computers with IP addresses. A client broadcasts a DHCP request to the entire network, then one computer on the network will be the DHCP server, which will respond to the request and provide the client with an IP address to use, as well as extra information like DNS servers.</p><p>In order to PXE boot, the DHCP server needs to respond with one more piece of data: the next server to use. The PXE will then connect to that host using TFTP and download the disk image to boot.</p><h1 id=create-a-diskless-vm>Create a diskless VM</h1><p>The first thing to set up is the diskless VM. Be sure to choose &ldquo;Do not add a virtual hard disk&rdquo;, but otherwise create it as normal. I called it pxe-1, but the name is not important.</p><p><img src=images/pxe-1-creation.png alt="Creating the pxe-1 VM"></p><p>We will need to set up an internal network to allow the diskless VMs to boot. Because it will have its own DHCP server, it must be isolated from both the host machine, the Internet, and the default VirtualBox NAT network. VMs. The easiest way to do this is to create a network of type &ldquo;Internal Network&rdquo;. The internal network option allows you to assign a name. All virtual adapters with the same internal network name will be connected together. In this case, I created an internal network called pxenet.</p><p><img src=images/pxe-1-networking.png alt="Setting up pxe-1 networking"></p><p>Finally, we need to set up the boot order. In the system section, uncheck every boot option except for Network. Optionally, you can even go to the storage section and remove the disk drive, as we won&rsquo;t be using it.</p><p><img src=images/pxe-1-boot-order.png alt="Setting up pxe-1 boot order"></p><p>At this point, we can try to boot it up, but we won&rsquo;t get far. The native VirtualBox PXE environment starts up, but can&rsquo;t get an IP address over DHCP. Clearly, we need to set up a DHCP server.</p><p><img src=images/pxe-1-failed-boot.png alt="Failing to boot pxe-1"></p><h1 id=create-a-host-vm>Create a host VM</h1><p>Now we can set up our host VM. This will be our network&rsquo;s DHCP and TFTP server and will hold the OS and disk image that the diskless systems will boot from. It needs to have a boot disk. I will set up headless Debian, but just about any other distribution can be used.</p><p><img src=images/host-creation.png alt="Creating the pxe-host VM"></p><p>You&rsquo;ll also need to create a disk for this VM.</p><p><img src=images/host-disk-creation.png alt="Setting up pxe-host disk"></p><p>Now it&rsquo;s time to set up networking. This VM will need two network interfaces: one to get to the Internet through local NAT, which should be created by default. The other interface will be an internal network shared with the diskless VM.</p><p><img src=images/host-networking.png alt="Setting up pxe-host networking"></p><p>The next step is to <a href=https://www.debian.org/distrib/netinst>download</a> a Debian netinst ISO file. I ended up with Debian 10.9.0, and used the amd64 architecture, but pretty much any reasonably-modern Debian should work. <em>Do not</em> use the &ldquo;Network boot&rdquo; files, just the regular &ldquo;Small CDs or USB sticks&rdquo;.</p><p>Boot to the downloaded disk and install Debian as normal.<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup></p><p>At this point, the machine should have two network cards (in addition to the loopback): one for the VirtualBox NAT network (enp0s3) and one for the internal pxenet network (enp0s8). The NAT network is connected to the Internet, while the internal network is currently down.</p><pre><code>$ ip address
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 08:00:27:5d:b0:8a brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
+       valid_lft 85928sec preferred_lft 85928sec
+    inet6 fe80::a00:27ff:fe5d:b08a/64 scope link
+       valid_lft forever preferred_lft forever
+3: enp0s8: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 08:00:27:d5:c3:a1 brd ff:ff:ff:ff:ff:ff
+</code></pre><p>We&rsquo;ll need to pick an IP address range to run our PXE boot network. I arbitrarily picked the 192.168.5.0/24 subnet, and chose 192.168.5.1 as the pxe-host IP, but any private address range could work. Set the static IP in pxe-host&rsquo;s <code>/etc/network/interfaces</code> file, then connect with <code>ifup</code>.</p><pre><code># pxe-host /etc/network/interfaces
+# Static IP for PXE booting
+auto enp0s8
+iface enp0s8 inet static
+        address 192.168.5.1/24
+</code></pre><pre><code>$ ip address
+(...)
+3: enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 08:00:27:d5:c3:a1 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.5.1/24 brd 192.168.5.255 scope global enp0s8
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fed5:c3a1/64 scope link
+       valid_lft forever preferred_lft forever
+</code></pre><h1 id=run-a-dhcp-server>Run a DHCP server</h1><p>On Debian, the DHCP server is provided by the <a href=https://packages.debian.org/buster/isc-dhcp-server>isc-dhcp-server</a> package.</p><pre><code>$ sudo apt install isc-dhcp-server
+
+(... snip irrelevant lines)
+
+Setting up isc-dhcp-server (4.4.1-2) ...
+
+(...)
+
+Job for isc-dhcp-server.service failed because the control process exited with error code.
+See &quot;systemctl status isc-dhcp-server.service&quot; and &quot;journalctl -xe&quot; for details.
+
+(...)
+</code></pre><p>When you install the default DHCP server, <code>apt</code> will helpfully (?) try to start it for you automatically. However, the server will notice that you haven&rsquo;t configured it yet, so it helpfully (?) shuts itself down. If you want to check it for yourself, you can run <code>sudo journalctl -xe</code> as it suggests.</p><pre><code>May 14 14:29:53 pxe-host dhcpd[1505]: No subnet declaration for enp0s3 (10.0.2.15).
+May 14 14:29:53 pxe-host dhcpd[1505]: ** Ignoring requests on enp0s3.  If this is not what
+May 14 14:29:53 pxe-host dhcpd[1505]:    you want, please write a subnet declaration
+May 14 14:29:53 pxe-host dhcpd[1505]:    in your dhcpd.conf file for the network segment
+May 14 14:29:53 pxe-host dhcpd[1505]:    to which interface enp0s3 is attached. **
+May 14 14:29:53 pxe-host dhcpd[1505]:
+May 14 14:29:53 pxe-host dhcpd[1505]:
+May 14 14:29:53 pxe-host dhcpd[1505]: Not configured to listen on any interfaces!
+May 14 14:29:53 pxe-host dhcpd[1505]:
+May 14 14:29:53 pxe-host dhcpd[1505]: If you think you have received this message due to a bug rather
+May 14 14:29:53 pxe-host dhcpd[1505]: than a configuration issue please read the section on submitting
+May 14 14:29:53 pxe-host dhcpd[1505]: bugs on either our web page at www.isc.org or in the README file
+May 14 14:29:53 pxe-host dhcpd[1505]: before submitting a bug.  These pages explain the proper
+May 14 14:29:53 pxe-host dhcpd[1505]: process and the information we find helpful for debugging.
+May 14 14:29:53 pxe-host dhcpd[1505]:
+May 14 14:29:53 pxe-host dhcpd[1505]: exiting.
+</code></pre><p>We can start configuring by editing <code>/etc/default/isc-dhcp-server</code>. Add the enp0s8 interface to the INTERFACESv4 line (configuring IPv6 DHCP is left as an exercise).</p><pre><code># pxe-host /etc/default/isc-dhcp-server
+INTERFACESv4=&quot;enp0s8&quot;
+INTERFACESv6=&quot;&quot;
+</code></pre><p>Now edit the <code>/etc/dhcp/dhcpd.conf</code> file. We need to tell dhcpd what IP address range to draw from, what TFTP server address to hand out (we&rsquo;ll put our own address there) and what filename the clients should request from that TFTP server.</p><p>Add these lines to the bottom of the file:</p><pre><code># pxe-host /etc/dhcp/dhcpd.conf
+# Skip the rest of the file
+subnet 192.168.5.0 netmask 255.255.255.0 {
+  range 192.168.5.10 192.168.5.50;
+  filename &quot;/undionly.kpxe&quot;;
+  next-server 192.168.5.1;
+}
+</code></pre><p>Now the DHCP server should start up without complaining.</p><pre><code>$ sudo systemctl start isc-dhcp-server
+$ sudo systemctl status isc-dhcp-server
+● isc-dhcp-server.service - LSB: DHCP server
+   Loaded: loaded (/etc/init.d/isc-dhcp-server; generated)
+   Active: active (running) since Fri 2021-05-14 14:58:25 EDT; 11s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 1863 ExecStart=/etc/init.d/isc-dhcp-server start (code=exited, status=0/SUCCESS)
+    Tasks: 1 (limit: 2359)
+   Memory: 4.8M
+   CGroup: /system.slice/isc-dhcp-server.service
+           └─1875 /usr/sbin/dhcpd -4 -q -cf /etc/dhcp/dhcpd.conf enp0s8
+
+May 14 14:58:23 pxe-host systemd[1]: Starting LSB: DHCP server...
+May 14 14:58:23 pxe-host isc-dhcp-server[1863]: Launching IPv4 server only.
+May 14 14:58:23 pxe-host dhcpd[1875]: Wrote 0 leases to leases file.
+May 14 14:58:23 pxe-host dhcpd[1875]: Server starting service.
+May 14 14:58:25 pxe-host isc-dhcp-server[1863]: Starting ISC DHCPv4 server: dhcpd.
+May 14 14:58:25 pxe-host systemd[1]: Started LSB: DHCP server.
+</code></pre><p>Now we can try to boot the guest again, and we get farther this time! Now it gets an IP address and tries to connect with pxe-host over TFTP. Next time, we&rsquo;ll install a TFTP server and host a file.</p><p><img src=images/pxe-1-failed-boot-2.png alt="pxe-1 is trying its best to boot"></p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Or, in our case, by the VirtualBox hypervisor.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>I used a GUI-less configuration, but you can set it up however works best for you.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><footer></footer></body></html>
