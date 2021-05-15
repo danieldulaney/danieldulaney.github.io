@@ -1,6 +1,6 @@
 ---
 title: "VM Setup and DHCP"
-draft: true
+date: 2021-05-15
 series:
     - PXE from scratch
 series_weight: 1
