@@ -15,12 +15,34 @@ body {
   border-radius: 5px;
   line-height: 2.5em;
 }
+
 .menu, .article-meta, footer { text-align: center; }
 .title { font-size: 1.1em; }
 footer a { text-decoration: none; }
 hr {
   border-style: dashed;
   color: #ddd;
+}
+
+/* article listings */
+.article-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.article-list li {
+  border: 1px solid #ddd;
+  margin: 1em;
+  padding: .5em;
+}
+
+.article-list h2 > a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.article-list .read-more {
+  text-align: right;
 }
 
 /* code */

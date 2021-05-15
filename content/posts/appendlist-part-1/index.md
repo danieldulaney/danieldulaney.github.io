@@ -1,5 +1,5 @@
 ---
-title: "AppendList in Rust, part 1: Sidestepping the borrow-checker"
+title: "Sidestepping the borrow-checker"
 date: 2019-07-13
 tags:
     - rust
@@ -8,7 +8,9 @@ series:
 series_weight: 1
 ---
 
-Rust's borrow checker is a powerful tool. It makes sure your code is safe by enforcing two rules:
+Rust's borrow checker is a powerful tool. It makes sure your code is safe by enforcing two rules, but they end up having a massive impact on program design.
+
+<!--more-->
 
 1. Multiple immutable references or one mutable reference at a time, but not both.
 2. References must always be valid.

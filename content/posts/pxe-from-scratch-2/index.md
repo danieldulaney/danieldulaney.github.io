@@ -1,14 +1,18 @@
 ---
-title: "PXE from scratch, part 2: iPXE"
+title: "Setting up iPXE"
 draft: true
 series:
     - PXE from scratch
+series_weight: 2
+tags:
+    - pxe
 ---
 
-In [part 1](../pxe-from-scratch-1), we set up a diskless virtual machine (pxe-1) that gets an IP address and tries to boot from another virtual machine (pxe-host). To make that work, we need to have two things:
+In [part 1](../pxe-from-scratch-1), we set up a diskless virtual machine (pxe-1) that gets an IP address and tries to boot from another virtual machine (pxe-host). Now, we need to actually get something booting.
 
-- A TFTP server to serve up some boot files
-- Some boot files
+<!--more-->
+
+We'll need two things: a TFTP server to serve up some boot files and some boot files to serve.
 
 Lets start with the TFTP server. On Debian, the ["normal" TFTP server](https://wiki.debian.org/TFTP) is [tftpd-hpa](https://packages.debian.org/buster/tftpd-hpa), so let's install that one. `apt` will helpfully (?) start it automatically.
 

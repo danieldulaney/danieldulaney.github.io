@@ -10,6 +10,8 @@ series_weight: 2
 
 At the end of [part 1](../appendlist-part-1), we had just about finished implementing `AppendList`, an array of arrays that let you push new elements on through an immutable reference.
 
+<!--more-->
+
 It worked pretty well! There were a bunch of chunks that were all the same size, and it was pretty easy to figure out which index was in each chunk. But there's a downside: somebody needs to pick what chunk size to use. You could imagine this going wrong both ways: too small, and the overhead of keeping track of each chunk is pretty significant. Too big, and the unused space at the end of the last chunk is problematic.
 
 We could just throw up our hands and let the end user pick, but that's not a great experience for them. We'd have to add a chunk size parameter to the `new` function, save that parameter somewhere (with some runtime cost),[^const-generics] and then reference that parameter whenever we need the chunk size.

@@ -6,17 +6,48 @@
 
 {{ .Content }}
 
-<ul>
+<ul class="article-list">
   {{ $pages := .Pages }}
   {{ if .IsHome }}{{ $pages = .Site.RegularPages }}{{ end }}
   {{ range ((where $pages "Section" "!=" "").ByDate.ByParam "draft").Reverse }}
   <li>
-    {{ if .Param "draft" }}
-    <span style="color: red;">DRAFT</span>
-    {{ else }}
-    <span class="date">{{ .Date.Format "2 Jan 2006" }}</span>
-    {{ end }}
-    <a href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a>
+    {{ $page := . }}
+
+    <h2>
+      <a href="{{ .RelPermalink }}">
+        {{ range .GetTerms "series" }}
+        {{ .LinkTitle }}, part {{ $page.Params.series_weight }}:
+        {{ end }}
+        {{ .Title }}
+      </a>
+    </h2>
+
+    <div class="info-line">
+      {{ if .Param "draft" }}
+      <span style="color: red;">DRAFT</span>
+      {{ else }}
+      <span class="date">{{ .Date.Format "2 Jan 2006" }}</span>
+      {{ end }}
+
+      &#x2022;
+
+      <span class="tags">
+        {{ range .GetTerms "tags" }}
+        <a href=" {{ .RelPermalink }} ">{{ .LinkTitle }}</a>
+        {{ end }}
+      </span>
+
+      {{ range .GetTerms "series" }}
+      &#x2022;
+      <a href=" {{ .RelPermalink }}">{{ .LinkTitle }}</a> series, part {{ $page.Params.series_weight }}
+      {{ end }}
+    </div>
+
+    <p>
+      {{ .Summary }}
+    </p>
+
+    <div class="read-more"><a href="{{ .RelPermalink }}">Read More</a></div>
   </li>
   {{ end }}
 </ul>

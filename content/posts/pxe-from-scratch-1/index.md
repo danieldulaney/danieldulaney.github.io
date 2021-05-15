@@ -1,13 +1,23 @@
 ---
-title: "PXE from scratch, part 1: Setup and DHCP"
+title: "VM Setup and DHCP"
 draft: true
 series:
     - PXE from scratch
+series_weight: 1
+tags:
+    - pxe
+    - vm
+    - dhcp
 ---
 
-It can sometimes be useful to run a computer without any storage by booting from a network. This has a few advantages:
+It can sometimes be useful to run a computer without any storage by booting from a network. This is the first part in a series on how to set up network, or PXE (pronounced "pixie") booting.
 
-- Swapping failed hardware or adding new hardware is trivial; just plug it in and reboot.
+<!--more-->
+
+Network booting has a bunch of advantages:
+
+- Provisioning a new machine is instant.
+- Swapping failed hardware is trivial; just plug it in and reboot.
 - Every reboot is essentially a "reimaging", so you can update software centrally and reboot to quickly roll it out.
 
 However, it also has a few disadvantages:
