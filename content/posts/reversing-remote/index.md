@@ -1,6 +1,9 @@
 ---
 title: "Reversing the Hunter 99123 Fan Remote"
 draft: true
+tags:
+    - hardware
+    - reversing
 ---
 
 My apartment came with a ceiling fan/light combination made by the [Hunter Fan Company](https://www.hunterfan.com/). It is controlled by [model 99123](https://www.hunterfan.com/products/ceiling-fan-accessories-fan-light-universal-handheld-remote-control-desert-platinum-99123) remote control, which appears to be a proprietary remote using the 434 MHz RF band. I'd like to be able to control my bedroom light and fan with one of these [no-name 434 MHz transmitters](https://www.amazon.com/gp/product/B07PDGKW8B), but there does not appear to be any documentation on the control protocol (or at least, I don't know what keywords to search for).
