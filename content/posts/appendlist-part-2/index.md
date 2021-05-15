@@ -1,5 +1,5 @@
 ---
-title: "AppendList in Rust, part 2: Optimizing the layout"
+title: "Optimizing the layout"
 date: 2019-07-17
 tags:
     - rust
