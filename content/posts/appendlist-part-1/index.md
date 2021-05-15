@@ -1,10 +1,11 @@
 ---
-title: "ArrayList in Rust, part 1: Sidestepping the borrow-checker"
+title: "AppendList in Rust, part 1: Sidestepping the borrow-checker"
 date: 2019-07-13
 tags:
     - rust
-    - unsafe
-    - data-structures
+series:
+    - AppendList in Rust
+series_weight: 1
 ---
 
 Rust's borrow checker is a powerful tool. It makes sure your code is safe by enforcing two rules:
@@ -35,7 +36,7 @@ assert_eq!(first_item, second_item);
 error[E0502]: cannot borrow 'list' as mutable because it is also borrowed as immutable
 ```
 
-Eventually, you pick up on what the compiler saying and structure your programs to satisfy the borrow checker. But it can sometimes be useful to bend the rules a bit. This post goes into the design of `AppendList`, a data structure that lets the code above compile using interior mutability, `unsafe`, and logarithms.
+Eventually, you pick up on what the compiler saying and structure your programs to satisfy the borrow checker. But it can sometimes be useful to bend the rules a bit. This post and the [next one](../appendlist-part-2) go into the design of `AppendList`, a data structure that lets the code above compile using interior mutability, `unsafe`, and logarithms.
 
 # The `AppendList` interface
 
@@ -320,4 +321,4 @@ Excellent! We've written a data structure that lets us freely index into a list 
 
 But there are still some questions left: What's up with that constant chunk size of 16? What about those logarithms I promised? Why is `chunk_size` a function?
 
-Those questions will have to wait for [part 2](../arraylist-part-2/), where we look at another way to determine chunk sizes and dig up some formulas from your (or at least my) high-school math class.
+Those questions will have to wait for [part 2](../appendlist-part-2/), where we look at another way to determine chunk sizes and dig up some formulas from high-school math class.

@@ -13,6 +13,7 @@ body {
   background: #eee;
   padding: 5px;
   border-radius: 5px;
+  line-height: 2.5em;
 }
 .menu, .article-meta, footer { text-align: center; }
 .title { font-size: 1.1em; }
@@ -28,12 +29,27 @@ pre {
   box-shadow: 5px 5px 5px #eee;
   padding: 1em;
   overflow-x: auto;
+  background: #eee;
 }
-code { background: #f9f9f9; }
-pre code { background: none; }
+
+code {
+  background: #eee;
+  padding-top: .2em;
+  border-radius: .1em;
+}
+
+pre code {
+  background: none;
+}
 
 /* misc elements */
-img, iframe, video { max-width: 100%; }
+img, iframe, video {
+  border: 1px solid #ddd;
+  padding: 1em;
+  max-width: 100%;
+  box-shadow: 5px 5px 5px #eee;
+}
+
 main { hyphens: auto; }
 blockquote {
   background: #f9f9f9;

@@ -1,6 +1,8 @@
 ---
 title: "PXE from scratch, part 1: Setup and DHCP"
 draft: true
+series:
+    - PXE from scratch
 ---
 
 It can sometimes be useful to run a computer without any storage by booting from a network. This has a few advantages:

@@ -1,13 +1,14 @@
 ---
-title: "ArrayList in Rust, part 2: Optimizing the layout"
+title: "AppendList in Rust, part 2: Optimizing the layout"
 date: 2019-07-17
 tags:
     - rust
-    - unsafe
-    - data-structures
+series:
+    - AppendList in Rust
+series_weight: 2
 ---
 
-At the end of [part 1](../arraylist-part-1), we had just about finished implementing `AppendList`, an array of arrays that let you push new elements on through an immutable reference.
+At the end of [part 1](../appendlist-part-1), we had just about finished implementing `AppendList`, an array of arrays that let you push new elements on through an immutable reference.
 
 It worked pretty well! There were a bunch of chunks that were all the same size, and it was pretty easy to figure out which index was in each chunk. But there's a downside: somebody needs to pick what chunk size to use. You could imagine this going wrong both ways: too small, and the overhead of keeping track of each chunk is pretty significant. Too big, and the unused space at the end of the last chunk is problematic.
 
@@ -196,4 +197,4 @@ This one gets marked as `#[inline]` and `const` to help the compiler out in debu
 
 If you put all the code from the last two posts together, you end up essentially with the [appendlist](https://crates.io/crates/appendlist) crate.
 
-The last question: is this data structure useful for anything? It's fairly niche. In general, you'd do better to store all of your objects in a `Vec` and keep track of the index to each one, just eating the resizing costs. If resizing is expensive, that might be a use case for a specialized linked list. If you can come up with a use for this data structure, [let me know](/about/), I'd love to hear about it!
+The last question: is this data structure useful for anything? It's fairly niche. In general, you'd do better to store all of your objects in a `Vec` and keep track of the index to each one, just eating the resizing costs. Indexing into linear memory is cheap, so there's not much benefit to holding a reference over an index. If resizing is expensive, that might be a use case for a specialized linked list. If you can come up with a use for this data structure, let me know, I'd love to hear about it!

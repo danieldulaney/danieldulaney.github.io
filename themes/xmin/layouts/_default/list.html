@@ -9,9 +9,13 @@
 <ul>
   {{ $pages := .Pages }}
   {{ if .IsHome }}{{ $pages = .Site.RegularPages }}{{ end }}
-  {{ range (where $pages "Section" "!=" "") }}
+  {{ range ((where $pages "Section" "!=" "").ByDate.ByParam "draft").Reverse }}
   <li>
-    <span class="date">{{ .Date.Format "2006/01/02" }}</span>
+    {{ if .Param "draft" }}
+    <span style="color: red;">DRAFT</span>
+    {{ else }}
+    <span class="date">{{ .Date.Format "2 Jan 2006" }}</span>
+    {{ end }}
     <a href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a>
   </li>
   {{ end }}

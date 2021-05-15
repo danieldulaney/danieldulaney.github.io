@@ -3,6 +3,9 @@ baseURL = "https://danieldulaney.com"
 languageCode = "en-us"
 title = "Daniel Dulaney"
 
+[taxonomies]
+series = "series"
+
 [markup.goldmark.renderer]
 unsafe = true
 
@@ -12,8 +15,8 @@ url = "/"
 weight = 1
 
 [[menu.main]]
-name = "About"
-url = "/about/"
+name = "Series"
+url = "/series"
 weight = 2
 
 [[menu.main]]
