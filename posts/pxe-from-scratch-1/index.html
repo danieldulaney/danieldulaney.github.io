@@ -54,7 +54,7 @@ May 14 14:29:53 pxe-host dhcpd[1505]: before submitting a bug.  These pages expl
 May 14 14:29:53 pxe-host dhcpd[1505]: process and the information we find helpful for debugging.
 May 14 14:29:53 pxe-host dhcpd[1505]:
 May 14 14:29:53 pxe-host dhcpd[1505]: exiting.
-</code></pre><p>We can start configuring by editing <code>/etc/default/isc-dhcp-server</code>. Add the enp0s8 interface to the INTERFACESv4 line (configuring IPv6 DHCP is left as an exercise).</p><pre><code># pxe-host /etc/default/isc-dhcp-server
+</code></pre><p>We can start configuring by editing <code>/etc/default/isc-dhcp-server</code>. Add the enp0s8 interface to the INTERFACESv4 line.</p><pre><code># pxe-host /etc/default/isc-dhcp-server
 INTERFACESv4=&quot;enp0s8&quot;
 INTERFACESv6=&quot;&quot;
 </code></pre><p>Now edit the <code>/etc/dhcp/dhcpd.conf</code> file. We need to tell dhcpd what IP address range to draw from, what TFTP server address to hand out (we&rsquo;ll put our own address there) and what filename the clients should request from that TFTP server.</p><p>Add these lines to the bottom of the file:</p><pre><code># pxe-host /etc/dhcp/dhcpd.conf
