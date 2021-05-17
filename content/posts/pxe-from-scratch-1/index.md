@@ -63,7 +63,7 @@ The first thing to set up is the diskless VM. Be sure to choose "Do not add a vi
 
 ![Creating the pxe-1 VM](images/pxe-1-creation.png)
 
-We will need to set up an internal network to allow the diskless VMs to boot. Because it will have its own DHCP server, it must be isolated from both the host machine, the Internet, and the default VirtualBox NAT network. VMs. The easiest way to do this is to create a network of type "Internal Network". The internal network option allows you to assign a name. All virtual adapters with the same internal network name will be connected together. In this case, I created an internal network called pxenet.
+We will need to set up an internal network to allow the diskless VMs to boot. Because it will have its own DHCP server, it must be isolated from both the host machine, the Internet, and the default VirtualBox NAT network. The easiest way to do this is to create a network of type "Internal Network". The internal network option allows you to assign a name. All virtual adapters with the same internal network name will be connected together. In this case, I created an internal network called pxenet.
 
 ![Setting up pxe-1 networking](images/pxe-1-networking.png)
 
