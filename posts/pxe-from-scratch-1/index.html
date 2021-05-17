@@ -13,7 +13,7 @@
        valid_lft forever preferred_lft forever
 3: enp0s8: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN group default qlen 1000
     link/ether 08:00:27:d5:c3:a1 brd ff:ff:ff:ff:ff:ff
-</code></pre><p>We&rsquo;ll need to pick an IP address range to run our PXE boot network. I arbitrarily picked the 192.168.5.0/24 subnet, and chose 192.168.5.1 as the pxe-host IP, but any private address range could work. Set the static IP in pxe-host&rsquo;s <code>/etc/network/interfaces</code> file, then connect with <code>ifup</code>.</p><pre><code># pxe-host /etc/network/interfaces
+</code></pre><p>We&rsquo;ll need to pick an IP address range to run our PXE boot network. I arbitrarily picked the 192.168.5.0/24 subnet and chose 192.168.5.1 as the pxe-host IP, but any private address range could work. Set the static IP in pxe-host&rsquo;s <code>/etc/network/interfaces</code> file, then connect with <code>ifup</code>.</p><pre><code># pxe-host /etc/network/interfaces
 # Static IP for PXE booting
 auto enp0s8
 iface enp0s8 inet static
@@ -59,10 +59,19 @@ INTERFACESv4=&quot;enp0s8&quot;
 INTERFACESv6=&quot;&quot;
 </code></pre><p>Now edit the <code>/etc/dhcp/dhcpd.conf</code> file. We need to tell dhcpd what IP address range to draw from, what TFTP server address to hand out (we&rsquo;ll put our own address there) and what filename the clients should request from that TFTP server.</p><p>Add these lines to the bottom of the file:</p><pre><code># pxe-host /etc/dhcp/dhcpd.conf
 # Skip the rest of the file
+
+# DHCP for our chosen subnet
 subnet 192.168.5.0 netmask 255.255.255.0 {
+
+  # Hand out IPs in this range as needed
   range 192.168.5.10 192.168.5.50;
-  filename &quot;/undionly.kpxe&quot;;
+
+  # Tell clients to go here for their boot file
+  # This is pxe-host's IP address
   next-server 192.168.5.1;
+
+  # Tell clients to fetch this file from next-server
+  filename &quot;/undionly.kpxe&quot;;
 }
 </code></pre><p>Now the DHCP server should start up without complaining.</p><pre><code>$ sudo systemctl start isc-dhcp-server
 $ sudo systemctl status isc-dhcp-server
@@ -82,4 +91,4 @@ May 14 14:58:23 pxe-host dhcpd[1875]: Wrote 0 leases to leases file.
 May 14 14:58:23 pxe-host dhcpd[1875]: Server starting service.
 May 14 14:58:25 pxe-host isc-dhcp-server[1863]: Starting ISC DHCPv4 server: dhcpd.
 May 14 14:58:25 pxe-host systemd[1]: Started LSB: DHCP server.
-</code></pre><p>Now we can try to boot the guest again, and we get farther this time! Now it gets an IP address and tries to connect with pxe-host over TFTP. Next time, we&rsquo;ll install a TFTP server and host a file.</p><p><img src=images/pxe-1-failed-boot-2.png alt="pxe-1 is trying its best to boot"></p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Or, in our case, by the VirtualBox hypervisor.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>I used a GUI-less configuration, but you can set it up however works best for you.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><footer></footer></body></html>
+</code></pre><p>Now we can try to boot the guest again, and we get farther this time! Now it gets an IP address and tries to connect with pxe-host over TFTP.</p><p><img src=images/pxe-1-failed-boot-2.png alt="pxe-1 is trying its best to boot"></p><p><a href=../pxe-from-scratch-2>Next time</a>, we&rsquo;ll install a TFTP server and host a file.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Or, in our case, by the VirtualBox hypervisor.&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p>I used a GUI-less configuration, but you can set it up however works best for you.&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></main><footer></footer></body></html>
