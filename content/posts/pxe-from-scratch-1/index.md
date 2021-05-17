@@ -115,7 +115,7 @@ $ ip address
     link/ether 08:00:27:d5:c3:a1 brd ff:ff:ff:ff:ff:ff
 ```
 
-We'll need to pick an IP address range to run our PXE boot network. I arbitrarily picked the 192.168.5.0/24 subnet, and chose 192.168.5.1 as the pxe-host IP, but any private address range could work. Set the static IP in pxe-host's `/etc/network/interfaces` file, then connect with `ifup`.
+We'll need to pick an IP address range to run our PXE boot network. I arbitrarily picked the 192.168.5.0/24 subnet and chose 192.168.5.1 as the pxe-host IP, but any private address range could work. Set the static IP in pxe-host's `/etc/network/interfaces` file, then connect with `ifup`.
 
 ```
 # pxe-host /etc/network/interfaces
@@ -191,10 +191,19 @@ Add these lines to the bottom of the file:
 ```
 # pxe-host /etc/dhcp/dhcpd.conf
 # Skip the rest of the file
+
+# DHCP for our chosen subnet
 subnet 192.168.5.0 netmask 255.255.255.0 {
+
+  # Hand out IPs in this range as needed
   range 192.168.5.10 192.168.5.50;
-  filename "/undionly.kpxe";
+
+  # Tell clients to go here for their boot file
+  # This is pxe-host's IP address
   next-server 192.168.5.1;
+
+  # Tell clients to fetch this file from next-server
+  filename "/undionly.kpxe";
 }
 ```
 
@@ -221,6 +230,8 @@ May 14 14:58:25 pxe-host isc-dhcp-server[1863]: Starting ISC DHCPv4 server: dhcp
 May 14 14:58:25 pxe-host systemd[1]: Started LSB: DHCP server.
 ```
 
-Now we can try to boot the guest again, and we get farther this time! Now it gets an IP address and tries to connect with pxe-host over TFTP. Next time, we'll install a TFTP server and host a file.
+Now we can try to boot the guest again, and we get farther this time! Now it gets an IP address and tries to connect with pxe-host over TFTP.
 
 ![pxe-1 is trying its best to boot](images/pxe-1-failed-boot-2.png)
+
+[Next time](../pxe-from-scratch-2), we'll install a TFTP server and host a file.
